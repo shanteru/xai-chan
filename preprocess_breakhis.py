@@ -1,7 +1,6 @@
 
-from PIL import Image
+
 import os, random, shutil, csv, copy 
-import matplotlib.pyplot as plt
 from sklearn.model_selection import StratifiedKFold, train_test_split
 from pathlib import Path
 
