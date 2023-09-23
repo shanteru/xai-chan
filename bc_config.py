@@ -1,4 +1,3 @@
-'''Author- Prkaash Chandra Chhipa, Email- prakash.chandra.chhipa@ltu.se/prakash.chandra.chhipa@gmail.com, Year- 2022'''
 
 import torch
 
@@ -79,10 +78,6 @@ Resnet_50 = 'Resnet_50'
 #Model params
 num_classes = 2
 
-#Stain Noramlization
-Reinhard_Normalization = 'Reinhard2001'
-Macenko_Normalization = 'Macenko2009'
-Vahadane_Normalization = 'Vahadane2015'
 
 #valset  split for SSL finetuning into train and validation
 portion_train = 'val_train'

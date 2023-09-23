@@ -6,14 +6,12 @@ import torch.nn as nn
 import numpy as np
 import pandas as pd
 from skimage import io
-from torchvision import transforms
-from torch.utils.data import Dataset, DataLoader
+
+from torch.utils.data import DataLoader
 from glob import glob 
 import matplotlib.pyplot as plt
 from random import randrange 
 
-#internal imports
-import bc_config
 
 
 class BreakHis_Dataset_SSL(nn.Module):
