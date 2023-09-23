@@ -14,7 +14,7 @@ from random import randrange
 
 #internal imports
 import bc_config
-import stainNorm_Reinhard, stainNorm_Macenko, stainNorm_Vahadane
+
 
 class BreakHis_Dataset_SSL(nn.Module):
 
@@ -30,22 +30,7 @@ class BreakHis_Dataset_SSL(nn.Module):
         self.image_dict_200x = {}
         self.image_dict_400x = {}
         
-        #preprocessing - stain normalization
-        self.stain_norm = None
-        # if len(self.pre_processing) > 0: # not important in current work
-        #     ref_image= np.asarray(PIL.Image.open('/home/BC_SSL/src/SOB.png')) # not important in current work
-        #     if bc_config.Reinhard_Normalization == self.pre_processing[0]:
-        #         print('Reinhard_Normalization in place')
-        #         self.stain_norm = stainNorm_Reinhard.Normalizer()
-        #         self.stain_norm.fit(ref_image)
-        #     if bc_config.Vahadane_Normalization == self.pre_processing[0]:
-        #         print('Vahadane_Normalization in place')
-        #         self.stain_norm = stainNorm_Vahadane.Normalizer()
-        #         self.stain_norm.fit(ref_image)
-        #     if bc_config.Macenko_Normalization == self.pre_processing[0]:
-        #         print('Macenko_Normalization in place')
-        #         self.stain_norm = stainNorm_Macenko.Normalizer()
-        #         self.stain_norm.fit(ref_image)
+
 
 
         for patient_dir_name in os.listdir(train_path):
