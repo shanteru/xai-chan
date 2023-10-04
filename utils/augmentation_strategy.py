@@ -1,4 +1,4 @@
-from albumentations import A
+import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
 pretrain_augmentation = A.Compose([
