@@ -5,7 +5,7 @@ import torch
 from torch.utils.tensorboard import SummaryWriter
 
 # internal packages
-from utils import dataset_test, transform, bc_config, models,train_util, augmentation_strategy as aug
+from utils import dataset_test, train_utils, transform, bc_config, models,augmentation_strategy as aug
 
 # 1. Configuration Loading
 def load_config(config_path):
@@ -119,7 +119,7 @@ def train_model(args_dict, fold, magnification):
     optimizer = torch.optim.Adam(downstream_task_model.parameters(), lr=LR, weight_decay= weight_decay)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.1 ,patience=patience, min_lr= 5e-3)
     writer = SummaryWriter(log_dir=os.path.join(tensorboard_base_path, experiment_description))
-    train_util = train_util.Train_Util(
+    train_util = train_utils.Train_Util(
         experiment_description = experiment_description, 
         epochs = epochs, 
         model=downstream_task_model, 

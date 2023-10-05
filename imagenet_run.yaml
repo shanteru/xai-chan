@@ -2,8 +2,8 @@
 #Data
 "data_path": "dataset"
 "train_data_portion": "train_60" # possibles values based on data volume "train_20", "train_40", "train_60", "train_80", "train" - means full training data
-"val_data_portion": "val"
-"test_data_portion": "test" #evaluation on validation and test set done after traning completion by its own and results are logged in csv file
+"val_data_portion": "val_20"
+"test_data_portion": "test_20" #evaluation on validation and test set done after traning completion by its own and results are logged in csv file
 "magnification_list": ["40X", "100X", "200X", "400X"] #currently actual magnification input logic is not working and it is defined in paython file main fuction manually. IT works with manual input value for all folds.
 
 # CNN to finetune
