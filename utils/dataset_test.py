@@ -22,7 +22,7 @@ class BreakHis_Dataset(Dataset):
         # Standard setting for - dataset path, augmentation, trnformations, preprocessing, etc. 
         self.train_path = train_path
         self.transform = transform
-        # self.pre_processing = pre_processing
+        self.pre_processing = pre_processing
         self.augmentation_strategy = augmentation_strategy
         self.image_type_list = image_type_list
 
