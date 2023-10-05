@@ -141,7 +141,7 @@ def train_model(args_dict, fold, magnification):
     # ----- Training Model ends 
 
 if __name__ == "__main__":
-    config = load_config("pretrain_mpcs_op.yaml")
+    config = load_config("imagenet_run.yaml")
     
     for fold in list(config["computational_infra"]["fold_to_gpu_mapping"].keys()):
         train_model(config, fold,'400X')
