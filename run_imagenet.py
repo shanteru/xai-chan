@@ -29,11 +29,11 @@ def train_model(args_dict, fold, magnification):
     
     #3. Pretraining method settings
     pretraining_method_type = args_dict["pretrained_encoder"]["method_type"]
-    pretraining_pair_sampling_method = args_dict["pretrained_encoder"]["variant"]
-    pretraining_initial_weights = args_dict["pretrained_encoder"]["initial_weights"]
-    pretraining_batch_size_list = args_dict["pretrained_encoder"]["batch_size_list"]
-    pretraining_epochs_list = args_dict["pretrained_encoder"]["epochs_list"]
-    pretraining_checkpoint_base_path = args_dict["pretrained_encoder"]["checkpoint_base_path"]
+    # pretraining_pair_sampling_method = args_dict["pretrained_encoder"]["variant"]
+    # pretraining_initial_weights = args_dict["pretrained_encoder"]["initial_weights"]
+    # pretraining_batch_size_list = args_dict["pretrained_encoder"]["batch_size_list"]
+    # pretraining_epochs_list = args_dict["pretrained_encoder"]["epochs_list"]
+    # pretraining_checkpoint_base_path = args_dict["pretrained_encoder"]["checkpoint_base_path"]
 
     #4. Training (finetune) settings
     epochs = args_dict["epochs"]
@@ -55,8 +55,8 @@ def train_model(args_dict, fold, magnification):
     os.makedirs(tensorboard_base_path, exist_ok=True)
     result_base_path = args_dict["results"]["result_base_path"]
     os.makedirs(result_base_path, exist_ok=True)
-    result_stats_path = args_dict["results"]["result_stats_path"]
-    os.makedirs(result_stats_path, exist_ok=True)
+    # result_stats_path = args_dict["results"]["result_stats_path"]
+    # os.makedirs(result_stats_path, exist_ok=True)
     
     
     # -----  Loading the Data with Specified Augmentation Strategy
@@ -139,3 +139,9 @@ def train_model(args_dict, fold, magnification):
     train_util.train_and_evaluate()
     
     # ----- Training Model ends 
+
+if __name__ == "__main__":
+    config = load_config("pretrain_mpcs_op.yaml")
+    
+    for fold in list(config["computational_infra"]["fold_to_gpu_mapping"].keys()):
+        train_model(config, fold,'400X')
