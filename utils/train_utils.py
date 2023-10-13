@@ -3,6 +3,12 @@ from tqdm import tqdm
 from pathlib import Path
 import torch
 import bc_config
+from captum.attr import LayerGradCam
+import matplotlib.pyplot as plt
+import os
+import torchvision.transforms as transforms
+from PIL import Image
+
 
 class Aggregator():
 	def __init__(self):
@@ -118,6 +124,8 @@ class Train_Util:
                     confusion_matrix_val[(targetx.long(), predictedx.long())] += 1
                 else:
                     val_loss_avg.update(loss.item())
+            
+
 
         total_patient_score = 0.0
         for key in patient_id_dict_total.keys():
@@ -136,6 +144,7 @@ class Train_Util:
         print(f'{self.experiment_description}: Validation Patient-Level Accuracy', patient_level_accuracy)
         print(confusion_matrix_val)
         return (weighted_f1, accuracy, patient_level_accuracy, classwise_precision, classwise_recall, classwise_f1, val_loss_avg())
+    
     def test_model(self):
         confusion_matrix_val = torch.zeros(len(bc_config.binary_label_list), len(bc_config.binary_label_list))
         self.model.eval()
@@ -265,6 +274,84 @@ class Train_Util:
         epoch_acc_manual = 100 * np.sum(np.array(confusion_matrix_epoch.diag().cpu())) / np.sum(np.array(confusion_matrix_epoch.cpu()))
         return (
          epoch_avg_f1_manual, epoch_acc_manual, epoch_classwise_precision_manual_cpu, epoch_classwise_recall_manual_cpu, epoch_classwise_f1_manual_cpu)
+
+    def compute_attributions(self, model, dataloader, target_layer):
+        """
+        Compute Grad-CAM attributions for a given model and data.
+        Args:
+            model: trained model
+            dataloader: DataLoader for the dataset to compute attributions on.
+            target_layer: the layer for which to compute attributions (usually a convolutional layer).
+        Returns:
+            A list of attributions for each input in the dataloader.
+        """
+        gradcam = LayerGradCam(model, target_layer)
+        model.eval()
+        attributions = []
+        
+        for inputs, _ in dataloader:
+            inputs = inputs.to(self.device)
+            attrib = gradcam.attribute(inputs, target=0) # Here, target is the class index. Modify as needed.
+            attributions.append(attrib)
+        
+        return attributions
+    
+    def save_attributions(self, attributions, dataloader,save_dir):
+        """
+        Save original images and their corresponding Grad-CAM heatmaps.
+        Args:
+            attributions: List of computed attributions.
+            dataloader: DataLoader to fetch original images.
+        """
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        for i, (inputs, _) in enumerate(dataloader):
+
+            # Convert tensor to PIL Image
+            original_image = transforms.ToPILImage()(inputs[0].cpu().detach())
+            original_image_path = os.path.join(save_dir, f"original_{i}.png")
+            original_image.save(original_image_path)
+
+            # Convert attribution map to PIL Image
+            heatmap = transforms.ToPILImage()(attributions[i][0].cpu().detach())
+            heatmap_image_path = os.path.join(save_dir, f"heatmap_{i}.png")
+            heatmap.save(heatmap_image_path)
+
+    def visualize_attributions(self, attributions, dataloader,save_dir):
+        """
+        Visualize attributions using matplotlib.
+        Args:
+            attributions: List of computed attributions.
+            dataloader: DataLoader to fetch original images for visualization.
+        """
+        # Ensure the save directory exists
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+
+        for i, (inputs, _) in enumerate(dataloader):
+            plt.figure(figsize=(10, 5))
+            
+            # Original image
+            plt.subplot(1, 2, 1)
+            plt.imshow(inputs[0].numpy().transpose(1,2,0)) # Assumes images have 3 channels. Modify if needed.
+            plt.title("Original Image")
+            
+            # Attribution map
+            plt.subplot(1, 2, 2)
+            plt.imshow(attributions[i][0].cpu().detach().numpy(), cmap='viridis')
+            plt.title("Grad-CAM Heatmap")
+            
+            plt.show()
+
+            # Save the figure
+            save_path = os.path.join(save_dir, f'visualization_{i}.png')
+            plt.savefig(save_path)
+
+            attribution_path = os.path.join(save_dir, f'attribution_{i}.npy')
+            np.save(attribution_path, attributions[i][0].cpu().detach().numpy())
+        
+        
+            plt.close()  # Close the figure to free up memory
 
     
     

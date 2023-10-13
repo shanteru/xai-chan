@@ -139,9 +139,11 @@ def train_model(args_dict, fold, magnification):
     train_util.train_and_evaluate()
     
     # ----- Training Model ends 
+    attributions = train_util.compute_attributions(downstream_task_model, val_loader, target_layer='layer4') 
+    train_util.visualize_attributions(attributions, val_loader,'image/gradcam/100X')
 
 if __name__ == "__main__":
     config = load_config("imagenet_run.yaml")
     
     for fold in list(config["computational_infra"]["fold_to_gpu_mapping"].keys()):
-        train_model(config, fold,'400X')
+        train_model(config, fold,'100X')

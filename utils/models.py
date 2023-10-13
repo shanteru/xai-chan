@@ -35,7 +35,7 @@ class ResNet50_SSL(nn.Module):
 
 
 class ResNet_Model(torch.nn.Module):
-    def __init__(self, version, pretrained=False, num_classes = 1, use_sigmoid_head = True):
+    def __init__(self, version=50, pretrained=False, num_classes = 1, use_sigmoid_head = True):
         super(ResNet_Model, self).__init__()
         self.num_classes = num_classes
         self.model = None
