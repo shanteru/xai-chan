@@ -61,3 +61,43 @@ class ResNet_Model(torch.nn.Module):
         else:
             output = self.model(x)
         return output
+    
+
+class VGGInceptionNet(nn.Module):
+    def __init__(self):
+        super(VGGInceptionNet, self).__init__()
+        
+        # Load VGG16 without classifier (features only)
+        vgg16 = models.vgg16(pretrained=True)
+        self.features = nn.Sequential(*list(vgg16.features.children())[:19])  # Up to block4_pool
+        for param in self.features.parameters():
+            param.requires_grad = False
+        
+        # Inception Module
+        self.inception1x1 = nn.Conv2d(512, 64, kernel_size=1)
+        self.inception3x3 = nn.Conv2d(512, 128, kernel_size=3, padding=1)
+        self.inception5x5 = nn.Conv2d(512, 32, kernel_size=5, padding=2)
+        self.inception_pool = nn.MaxPool2d(kernel_size=3, stride=1, padding=1)
+        
+        # Classifier
+        self.bn = nn.BatchNorm2d(736)
+        self.dropout = nn.Dropout(0.4)
+        self.fc = nn.Sequential(
+            nn.Linear(736 * 14 * 14, 1),
+            nn.Sigmoid()
+        )
+
+    def forward(self, x):
+        x = self.features(x)
+        
+        i1 = self.inception1x1(x)
+        i3 = self.inception3x3(x)
+        i5 = self.inception5x5(x)
+        ip = self.inception_pool(x)
+        
+        x = torch.cat([i1, i3, i5, ip], dim=1)
+        x = self.bn(x)
+        x = x.view(x.size(0), -1)
+        x = self.dropout(x)
+        x = self.fc(x)
+        return x.squeeze()

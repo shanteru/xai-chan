@@ -21,7 +21,7 @@
 
 
 "epochs": 150
-"batch_size_list": [14, 28]
+"batch_size_list": [32]
 "learning_rate": 
   "lr_only": 0.01
   "patience": 5
@@ -63,11 +63,11 @@
 
 #Logs
 "logs":
-  "tensorboard_base_path": "logs/pretrain/"
+  "tensorboard_base_path": "saved/logs/pretrain/"
 
 
 #Outcome
 "results":
-  "result_base_path": "results/pretrain/"
+  "result_base_path": "saved/result/pretrain/"
 
 

@@ -275,83 +275,16 @@ class Train_Util:
         return (
          epoch_avg_f1_manual, epoch_acc_manual, epoch_classwise_precision_manual_cpu, epoch_classwise_recall_manual_cpu, epoch_classwise_f1_manual_cpu)
 
-    def compute_attributions(self, model, dataloader, target_layer):
-        """
-        Compute Grad-CAM attributions for a given model and data.
-        Args:
-            model: trained model
-            dataloader: DataLoader for the dataset to compute attributions on.
-            target_layer: the layer for which to compute attributions (usually a convolutional layer).
-        Returns:
-            A list of attributions for each input in the dataloader.
-        """
-        gradcam = LayerGradCam(model, target_layer)
-        model.eval()
-        attributions = []
-        
-        for inputs, _ in dataloader:
-            inputs = inputs.to(self.device)
-            attrib = gradcam.attribute(inputs, target=0) # Here, target is the class index. Modify as needed.
-            attributions.append(attrib)
-        
-        return attributions
-    
-    def save_attributions(self, attributions, dataloader,save_dir):
-        """
-        Save original images and their corresponding Grad-CAM heatmaps.
-        Args:
-            attributions: List of computed attributions.
-            dataloader: DataLoader to fetch original images.
-        """
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-        for i, (inputs, _) in enumerate(dataloader):
+    def check_item_dict_contents(self):
+        self.model.eval()
+        with torch.no_grad():
+            for patient_id, magnification, item_dict, binary_label, multi_label in tqdm(self.val_loader):
+                print("Patient ID:", patient_id)
+                print("Magnification:", magnification)
+                print("Item Dict:", item_dict)
+                print("Binary Label:", binary_label)
+                print("Multi Label:", multi_label)
+                print("-" * 50)
 
-            # Convert tensor to PIL Image
-            original_image = transforms.ToPILImage()(inputs[0].cpu().detach())
-            original_image_path = os.path.join(save_dir, f"original_{i}.png")
-            original_image.save(original_image_path)
-
-            # Convert attribution map to PIL Image
-            heatmap = transforms.ToPILImage()(attributions[i][0].cpu().detach())
-            heatmap_image_path = os.path.join(save_dir, f"heatmap_{i}.png")
-            heatmap.save(heatmap_image_path)
-
-    def visualize_attributions(self, attributions, dataloader,save_dir):
-        """
-        Visualize attributions using matplotlib.
-        Args:
-            attributions: List of computed attributions.
-            dataloader: DataLoader to fetch original images for visualization.
-        """
-        # Ensure the save directory exists
-        if not os.path.exists(save_dir):
-            os.makedirs(save_dir)
-
-        for i, (inputs, _) in enumerate(dataloader):
-            plt.figure(figsize=(10, 5))
-            
-            # Original image
-            plt.subplot(1, 2, 1)
-            plt.imshow(inputs[0].numpy().transpose(1,2,0)) # Assumes images have 3 channels. Modify if needed.
-            plt.title("Original Image")
-            
-            # Attribution map
-            plt.subplot(1, 2, 2)
-            plt.imshow(attributions[i][0].cpu().detach().numpy(), cmap='viridis')
-            plt.title("Grad-CAM Heatmap")
-            
-            plt.show()
-
-            # Save the figure
-            save_path = os.path.join(save_dir, f'visualization_{i}.png')
-            plt.savefig(save_path)
-
-            attribution_path = os.path.join(save_dir, f'attribution_{i}.npy')
-            np.save(attribution_path, attributions[i][0].cpu().detach().numpy())
-        
-        
-            plt.close()  # Close the figure to free up memory
-
-    
-    
+                # If you want to check only a few batches, you can break after a certain number:
+                # break

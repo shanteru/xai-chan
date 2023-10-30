@@ -1,11 +1,11 @@
 import  os, yaml
 import torch.nn as nn
 import torch
-
+import csv
 from torch.utils.tensorboard import SummaryWriter
 
 # internal packages
-from utils import dataset_test, train_utils, transform, bc_config, models,augmentation_strategy as aug
+from utils import bc_config, dataset_test, train_utils, transform, models,augmentation_strategy as aug
 
 # 1. Configuration Loading
 def load_config(config_path):
@@ -55,8 +55,8 @@ def train_model(args_dict, fold, magnification):
     os.makedirs(tensorboard_base_path, exist_ok=True)
     result_base_path = args_dict["results"]["result_base_path"]
     os.makedirs(result_base_path, exist_ok=True)
-    # result_stats_path = args_dict["results"]["result_stats_path"]
-    # os.makedirs(result_stats_path, exist_ok=True)
+    result_stats_path = args_dict["results"]["result_stats_path"]
+    os.makedirs(result_stats_path, exist_ok=True)
     
     
     # -----  Loading the Data with Specified Augmentation Strategy
@@ -136,14 +136,21 @@ def train_model(args_dict, fold, magnification):
         batch_balancing=False,
         result_folder=result_base_path
         )
-    train_util.train_and_evaluate()
+    
     
     # ----- Training Model ends 
-    attributions = train_util.compute_attributions(downstream_task_model, val_loader, target_layer='layer4') 
-    train_util.visualize_attributions(attributions, val_loader,'image/gradcam/100X')
+    best_acc, best_patient_level_acc, best_f1, best_classwise_precision, best_classwise_recall, best_classwise_f1 = train_util.train_and_evaluate()
+    filepath = os.path.join(result_stats_path, f"{magnification}_{encoder}{version}_FT_{DP}_{pretraining_method_type}.csv")
+    file_exists = os.path.isfile(filepath)
+    with open(filepath, 'a') as f:
+        writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow(['test_name','patient_level_accuracy', 'image_level_accuracy', 'weighted_f1', 'classwise_precision_B', 'classwise_precision_M','classwise_recall_B','classwise_recall_M','classwise_f1_B','classwise_f1_M'])
+        writer.writerow([f"{magnification}_{fold}_{encoder}{version}_FT_{DP}_{pretraining_method_type}_aug_{augmentation_level}",best_patient_level_acc, best_acc, best_f1, best_classwise_precision[0], best_classwise_precision[1],best_classwise_recall[0], best_classwise_recall[1],best_classwise_f1[0],best_classwise_f1[1]])
+ 
 
 if __name__ == "__main__":
-    config = load_config("imagenet_run.yaml")
+    args = load_config("run_imagenet.yaml")
     
-    for fold in list(config["computational_infra"]["fold_to_gpu_mapping"].keys()):
-        train_model(config, fold,'100X')
+    for fold in list(args["computational_infra"]["fold_to_gpu_mapping"].keys()):
+        train_model(args, fold,'400X')

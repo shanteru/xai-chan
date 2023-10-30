@@ -1,0 +1,54 @@
+
+#Data
+"data_path": "dataset"
+"train_data_portion": "train_60" # possibles values based on data volume "train_20", "train_40", "train_60", "train_80", "train" - means full training data
+"val_data_portion": "val_20"
+"test_data_portion": "test_20" #evaluation on validation and test set done after traning completion by its own and results are logged in csv file
+"magnification_list": ["40X", "100X", "200X", "400X"] #currently actual magnification input logic is not working and it is defined in paython file main fuction manually. IT works with manual input value for all folds.
+
+# CNN to finetune
+"encoder": 
+  "name": "resnet"
+  "version": 50
+  "fc_dropout": 0.0
+
+#pretrained model to initalize
+"pretrained_encoder":
+  "method_type": "imagenet" 
+
+
+
+#Training
+"epochs": 100
+"batch_size": 32
+"early_stopping_patience": 100
+"learning_rate":
+  "lr_only": 0.0001
+  "patience": 5
+"weight_decay": 0.0
+"optimizer" : "adam" # default and only option implemented is Adam as of now"
+"momentum" : 0.9
+"augmentation_level": "low" #check augmentation_strategy python file for more alternatives and customization
+
+
+#Computationals
+"computational_infra":
+  "fold_to_gpu_mapping": #incase of smaller GPU and less GPU this settings can be updated
+    "Fold_0_5": 3
+    "Fold_1_5": 4
+    "Fold_2_5": 7
+    "Fold_3_5": 3
+    "Fold_4_5": 7
+  "workers": 2
+  
+#Logs
+"logs":
+  "tensorboard_base_path": "saved/logs/imagenet/"
+  "tensorboard_file_path": None
+  "stats_file_path": None
+
+#Outcome
+"results":
+  "result_base_path": "saved/result/imagenet/"
+  "result_stats_path": "saved/result/imagenet/stats"
+  "result_dir_path": None
